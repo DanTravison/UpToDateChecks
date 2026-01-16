@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <!-- Location to publish assets -->
+        <PublishDir>$(SolutionDir)..\PublishDir</PublishDir>
+        <!-- The local assets direectoy. -->
+        <AssetsDir>$(MSBuildProjectDirectory)\Assets</AssetsDir>
+        <!-- Generator script -->
+        <MetaScript>$(MSBuildProjectDirectory)\Build\Generate-Meta.ps1</MetaScript>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssetFiles Include="Assets\*.txt" />
+        <AssetMeta Include="Assets\meta.json" />
+    </ItemGroup>
+
+    <!-- Copy the asset files to the publish directory -->
+    <Target Name="PublishAssets" 
+            BeforeTargets="Build" 
+            Condition="Exists($(PublishDir))" 
+            Inputs="@(AssetFiles)" 
+            Outputs="$(PublishDir)\%(AssetFiles.Filename)%(AssetFiles.Extension)">
+        <Message Text="Copying asset files from ($AssetsDir) to $(PublishDir)" Importance="High" />
+        <Copy SourceFiles="@(AssetFiles)" DestinationFolder="$(PublishDir)" />
+    </Target>
+
+    <Target Name="PublishMeta"
+            AfterTargets="Build"
+            Condition="Exists($(PublishDir))"
+            Inputs="@(AssetMeta);@(AssetFiles);$(MetaScript)"
+            Outputs="$(PublishDir)\%(AssetMeta.Filename)%(AssetMeta.Extension)">
+        <Message Text="Publishing @(AssetMeta) from $(AssetsDir) to $(PublishDir)" Importance="High" />
+        <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MetaScript)&quot; -InputMetaPath &quot;@(AssetMeta)&quot; -AssetsDir &quot;$(AssetsDir)&quot; -PublishDir &quot;$(PublishDir)&quot;" />
+    </Target>
+</Project>
