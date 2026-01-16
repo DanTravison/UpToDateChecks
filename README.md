@@ -29,7 +29,10 @@ The Target is expected to be run if any of the following files changed (Inputs)
 - The script itself (Build\Generate-Meta.ps1)
 - The output file ($PublishDir\meta.json) does not exist.
  
-## Problem Description
+## Problem Description/Repro
+- Open the Example.sln in the Example folder
+- Set logging level for Up-to-date Checks to at least 'Info' for the repro.
+
 When the 'Up-to-date Checks' setting is enabled, changes to the inputs for
 any of the targets does not result in the target executing.
 
